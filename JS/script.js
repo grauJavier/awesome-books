@@ -1,24 +1,34 @@
-
-
-let modal = document.querySelector('add-book__container');
-let addbutton = document.getElementsByName('add-button');
-let remButton = document.getElementsByName('remove-button');
-let titleInp = document.getElementsByName('book-title');
-let authorInp = document.getElementsByName('book-author');
+let modal = document.querySelector("#books-listed__table");
+let addButton = document.querySelector("#add-book__form");
+let remButton = document.getElementsByName("remove-button");
+let titleInp = document.getElementsByName("book-title");
+let authorInp = document.getElementsByName("book-author");
 let bookList = [];
 
-function objBook (title, author) {
-    let newBook = new Object();
-    book.push(bookList);
+function objBook(title, author) {
+  let newBook = new Object();
+  bookList.push(newBook);
 
-    let index = bookList.length -1;
+  let i = bookList.length - 1;
 
-    bookList[index].title = title;
-    bookList[index].author = author;
-    booklist[index].index = index;
+  bookList[i].title = title;
+  bookList[i].author = author;
+  bookList[i].index = i;
+
+  return i;
 }
 
-addEventListener.addbutton('click', () => {
-    objBook(titleInp.value, authorInp.value);
-})
+addButton.addEventListener("submit", function () {
+  let index = objBook(titleInp.value, authorInp.value);
 
+  modal.insertAdjacentHTML(
+    "beforeend",
+    `
+        <tr>
+            <td>${bookList[index].title}</td>
+            <td>${bookList[index].author}</td>
+            <td><button type="button" name="remove-button${bookList[index].index}">Remove</button></td>
+        </tr>
+    `
+  );
+});

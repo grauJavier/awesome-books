@@ -1,10 +1,10 @@
 // GLOBAL VARIABLES
 let bookShelf = document.querySelector("#books-listed__container");
 let addButton = document.querySelector("#add-book__form");
-let remButton = [];
 let titleInp = document.querySelector("#add-book__title");
 let authorInp = document.querySelector("#add-book__author");
-let bookList = [];
+let bookList = JSON.parse(localStorage.bookShelfData);
+let removeButtonArr = [];
 
 // 1.0 LOCAL STORAGE
 //   1.1 Testing for availability
@@ -43,12 +43,27 @@ function printHTML(title, author) {
      <div id="books-listed__book">
         <p id="book__title">${title}</p>
         <p id="book__author">${author}</p>
-        <button type="button" id="book__remove-button">Remove</button>
+        <button type="button" class="book__remove-button">Remove</button>
         <hr />
       </div>
-    `
+    ` 
   );
+
+  removeButtonArr = document.querySelectorAll('.book__remove-button');
 }
+
+// RELOAD
+function reloadData() {
+  let tempArr = JSON.parse(localStorage.bookShelfData);
+
+  for (let i = 0; i < tempArr.length; i++) {
+    printHTML(tempArr[i].title, tempArr[i].author);
+  }
+
+  removeButtonArr = document.querySelectorAll('.book__remove-button');
+}
+
+reloadData();
 
 // 3.0 SAVE DATA
 //   3.1 Function to save data
@@ -70,6 +85,7 @@ function saveData() {
   }
 }
 
+
 //  3.2 Event listener to call saveData() and printHTML()
 addButton.addEventListener("submit", function (event) {
   event.preventDefault();
@@ -79,13 +95,28 @@ addButton.addEventListener("submit", function (event) {
   addButton.reset();
 });
 
-//4.0 RELOAD
-function reloadData() {
-  let tempArr = JSON.parse(localStorage.bookShelfData);
+//4.0 ERASE DATA
 
-  for (let i = 0; i < tempArr.length; i++) {
-    printHTML(tempArr[i].title, tempArr[i].author);
-  }
+function eraseData(title) {
+  bookList = bookList.filter(book, function() {
+    book.title != title
+  })
+
+  localStorage.setItem(
+    "bookShelfData",
+    JSON.stringify(bookList)
+  );
+
+  removeButtonArr = document.querySelectorAll('.book__remove-button');
 }
 
-reloadData();
+removeButtonArr.forEach((button) => {
+  button.addEventListener('click', () => {
+
+    console.log(button.querySelector('#book__title').innerHTML)
+    button.parentElement.remove(); 
+
+  //eraseData('#book__title')
+
+  })
+})

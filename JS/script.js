@@ -1,38 +1,91 @@
-let modal = document.querySelector("#books-listed__table");
+// GLOBAL VARIABLES
+let bookShelf = document.querySelector("#books-listed__container");
 let addButton = document.querySelector("#add-book__form");
-let remButton = document.querySelector("#remove-button");
-let titleInp = document.querySelector("#book-title");
-let authorInp = document.querySelector("#book-author");
+let remButton = [];
+let titleInp = document.querySelector("#add-book__title");
+let authorInp = document.querySelector("#add-book__author");
 let bookList = [];
 
-function objBook(title, author) {
-  let newBook = new Object();
-  bookList.push(newBook);
-
-  let i = bookList.length - 1;
-
-  bookList[i].title = title;
-  bookList[i].author = author;
-  bookList[i].index = i;
-
-  return i;
+// 1.0 LOCAL STORAGE
+//   1.1 Testing for availability
+function storageAvailable(type) {
+  let storage;
+  try {
+    storage = window[type];
+    const x = "__storage_test__";
+    storage.setItem(x, x);
+    storage.removeItem(x);
+    return true;
+  } catch (error) {
+    return (
+      error instanceof DOMException &&
+      // everything except Firefox
+      (error.code === 22 ||
+        // Firefox
+        error.code === 1014 ||
+        // test name field too, because code might not be present
+        // everything except Firefox
+        error.name === "QuotaExceededError" ||
+        // Firefox
+        error.name === "NS_ERROR_DOM_QUOTA_REACHED") &&
+      // acknowledge QuotaExceededError only if there's something already stored
+      storage &&
+      storage.length !== 0
+    );
+  }
 }
 
-addButton.addEventListener("submit", function (e) {
-  e.preventDefault();
-  let index = objBook(titleInp.value, authorInp.value);
-
-  modal.insertAdjacentHTML(
+// 2.0 PRINT HTML
+function printHTML(title, author) {
+  bookShelf.insertAdjacentHTML(
     "beforeend",
     `
-        <tr>
-            <td>${bookList[index].title}</td>
-            <td>${bookList[index].author}</td>
-            <td><button type="button" id="remove-button${bookList[index].index}">Remove</button></td>
-        </tr>
-    `);
+     <div id="books-listed__book">
+        <p id="book__title">${title}</p>
+        <p id="book__author">${author}</p>
+        <button type="button" id="book__remove-button">Remove</button>
+        <hr />
+      </div>
+    `
+  );
+}
 
-    addButton.reset();
+// 3.0 SAVE DATA
+//   3.1 Function to save data
+function saveData() {
+  if (storageAvailable("localStorage")) {
+    let newBook = {
+      "title": titleInp.value,
+      "author": authorInp.value
+    }
 
-    console.log(bookList[index])
+    bookList.push(newBook);
+
+    localStorage.setItem(
+      "bookShelfData",
+      JSON.stringify(bookList)
+    );
+  } else {
+    console.log("ERROR: Localstorage not aviable.");
+  }
+}
+
+//  3.2 Event listener to call saveData() and printHTML()
+addButton.addEventListener("submit", function (event) {
+  event.preventDefault();
+  saveData();
+
+  printHTML(titleInp.value, authorInp.value);
+  addButton.reset();
 });
+
+//4.0 RELOAD
+function reloadData() {
+  let tempArr = JSON.parse(localStorage.bookShelfData);
+
+  for (let i = 0; i < tempArr.length; i++) {
+    printHTML(tempArr[i].title, tempArr[i].author);
+  }
+}
+
+reloadData();

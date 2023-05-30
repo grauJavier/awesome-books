@@ -1,13 +1,12 @@
 // GLOBAL VARIABLES
-let bookShelf = document.querySelector("#books-listed__container");
-let addButton = document.querySelector("#add-book__form");
-let titleInp = document.querySelector("#add-book__title");
-let authorInp = document.querySelector("#add-book__author");
-let bookList = JSON.parse(localStorage.bookShelfData);
+const bookShelf = document.querySelector("#books-listed__container");
+const addButton = document.querySelector("#add-book__form");
+const titleInp = document.querySelector("#add-book__title");
+const authorInp = document.querySelector("#add-book__author");
+let bookList = [];
 let removeButtonArr = [];
 
 // 1.0 LOCAL STORAGE
-//   1.1 Testing for availability
 function storageAvailable(type) {
   let storage;
   try {
@@ -46,79 +45,71 @@ function printHTML(title, author) {
         <button type="button" class="book__remove-button">Remove</button>
         <hr />
       </div>
-    ` 
+    `
   );
 
-  removeButtonArr = document.querySelectorAll('.book__remove-button');
+  removeButtonArr = document.querySelectorAll(".book__remove-button");
 }
 
-// RELOAD
-function reloadData() {
-  let tempArr = JSON.parse(localStorage.bookShelfData);
-
-  for (let i = 0; i < tempArr.length; i++) {
-    printHTML(tempArr[i].title, tempArr[i].author);
-  }
-
-  removeButtonArr = document.querySelectorAll('.book__remove-button');
+// 3.0 ERASE DATA
+//   3.1 Erase data function
+function eraseData(titleErase) {
+  bookList = bookList.filter((book) => book.title !== titleErase);
+  localStorage.setItem("bookShelfData", JSON.stringify(bookList));
+  removeButtonArr = document.querySelectorAll(".book__remove-button");
 }
 
-reloadData();
+//  3.2 Add listener to call eraseData() to each 'Remove' button
+function removeButtonLoader() {
+  removeButtonArr.forEach((button) => {
+    button.addEventListener("click", () => {
+      eraseData(button.parentNode.querySelector("#book__title").innerHTML);
+      button.parentElement.remove();
+    });
+  });
+}
 
-// 3.0 SAVE DATA
-//   3.1 Function to save data
+// 4.0 SAVE DATA
+//   4.1 Function to save data
 function saveData() {
   if (storageAvailable("localStorage")) {
-    let newBook = {
-      "title": titleInp.value,
-      "author": authorInp.value
-    }
+    const newBook = {
+      title: titleInp.value,
+      author: authorInp.value,
+    };
 
     bookList.push(newBook);
-
-    localStorage.setItem(
-      "bookShelfData",
-      JSON.stringify(bookList)
-    );
+    localStorage.setItem("bookShelfData", JSON.stringify(bookList));
   } else {
     console.log("ERROR: Localstorage not aviable.");
   }
 }
 
-
-//  3.2 Event listener to call saveData() and printHTML()
-addButton.addEventListener("submit", function (event) {
+//  4.2 Add listener to call saveData() and printHTML() in 'Add' button
+addButton.addEventListener("submit", (event) => {
   event.preventDefault();
   saveData();
-
   printHTML(titleInp.value, authorInp.value);
+  removeButtonLoader();
   addButton.reset();
 });
 
-//4.0 ERASE DATA
+// 5.0 RELOAD
+//   5.1 Reload data function
+function reloadData() {
+  const tempArr = JSON.parse(localStorage.bookShelfData);
 
-function eraseData(title) {
-  bookList = bookList.filter(book, function() {
-    book.title != title
-  })
+  for (let i = 0; i < tempArr.length; i + 1) {
+    printHTML(tempArr[i].title, tempArr[i].author);
+  }
 
-  localStorage.setItem(
-    "bookShelfData",
-    JSON.stringify(bookList)
-  );
-
-  removeButtonArr = document.querySelectorAll('.book__remove-button');
+  removeButtonArr = document.querySelectorAll(".book__remove-button");
 }
 
-removeButtonArr.forEach((button) => {
-  button.addEventListener('click', () => {
-
-    console.log(button.querySelector('#book__title').innerHTML)
-    button.parentElement.remove(); 
-
-  //eraseData('#book__title')
-
-  })
-})
-
-// cambio para push actualizar repo
+//   5.2 Reload data if is NOT undefined
+if (localStorage.bookShelfData !== undefined) {
+  bookList = JSON.parse(localStorage.bookShelfData);
+  removeButtonArr = document.querySelectorAll(".book__remove-button");
+  reloadData();
+  removeButtonLoader();
+}

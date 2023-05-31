@@ -1,12 +1,3 @@
-// GLOBAL VARIABLES
-const bookShelf = document.querySelector('#books-listed__body');
-const addButton = document.querySelector('#add-book__form');
-const titleInp = document.querySelector('#add-book__title');
-const authorInp = document.querySelector('#add-book__author');
-let bookList = [];
-let removeButtonArr = [];
-
-// 1.0 LOCAL STORAGE
 function storageAvailable(type) {
   let storage;
   try {
@@ -34,85 +25,99 @@ function storageAvailable(type) {
   }
 }
 
-// 2.0 PRINT HTML
-function printHTML(title, author) {
-  bookShelf.insertAdjacentHTML(
-    'beforeend',
-    `
-     <tr id="books-listed__book">
-       <td id="book__title">"${title}"</td>
-       <td id="book__author">by ${author}</td>
-       <td class="text-end">
-         <button type="button" class="book__remove-button btn btn-outline-primary rounded-pill">
-           Remove
-         </button>
-       </td>
-     </tr>
-    `,
-  );
+class Bookshelf {
+  constructor() {
+    this.bookList = JSON.parse(localStorage.getItem('bookShelfData')) || [];
+    this.removeButtonArr = document.querySelectorAll('.book__remove-button') || [];
+    this.bookShelf = document.querySelector('#books-listed__body');
+    this.addButton = document.querySelector('#add-book__form');
+    this.titleInp = document.querySelector('#add-book__title');
+    this.authorInp = document.querySelector('#add-book__author');
+    this.textEmpty = document.querySelector('#books-listed__text-empty');
 
-  removeButtonArr = document.querySelectorAll('.book__remove-button');
-}
-
-// 3.0 ERASE DATA
-//   3.1 Erase data function
-function eraseData(titleErase) {
-  bookList = bookList.filter((book) => book.title !== titleErase);
-  localStorage.setItem('bookShelfData', JSON.stringify(bookList));
-  removeButtonArr = document.querySelectorAll('.book__remove-button');
-}
-
-//  3.2 Add listener to call eraseData() to each 'Remove' button
-function removeButtonLoader() {
-  removeButtonArr.forEach((button) => {
-    button.addEventListener('click', () => {
-      eraseData(button.parentNode.querySelector('#book__title').innerHTML);
-      button.parentElement.remove();
+    this.addButton.addEventListener('submit', (event) => {
+      event.preventDefault();
+      this.addBook();
+      this.addButton.reset();
+      this.emptyMessage();
     });
-  });
-}
+  }
 
-// 4.0 SAVE DATA
-//   4.1 Function to save data
-function saveData() {
-  if (storageAvailable('localStorage')) {
-    const newBook = {
-      title: titleInp.value,
-      author: authorInp.value,
-    };
+  emptyMessage() {
+    if (
+      localStorage.bookShelfData === '[]'
+      || localStorage.bookShelfData === undefined
+    ) {
+      this.textEmpty.classList.replace('d-none', 'd-block');
+    } else {
+      this.textEmpty.classList.replace('d-block', 'd-none');
+    }
+  }
 
-    bookList.push(newBook);
-    localStorage.setItem('bookShelfData', JSON.stringify(bookList));
-  } else {
-    console.log('ERROR: Localstorage not aviable.');
+  printHTML(title, author) {
+    this.bookShelf.insertAdjacentHTML(
+      'beforeend',
+      `
+       <tr id="books-listed__book">
+         <td id="book__title">${title}</td>
+         <td id="book__author">by ${author}</td>
+         <td class="text-end">
+           <button type="button" class="book__remove-button btn btn-outline-primary rounded-pill">
+             Remove
+           </button>
+         </td>
+       </tr>
+      `,
+    );
+    this.removeBook();
+  }
+
+  addData(obj) {
+    this.bookList.push(obj);
+    localStorage.setItem('bookShelfData', JSON.stringify(this.bookList));
+    this.printHTML(obj.title, obj.author);
+  }
+
+  addBook() {
+    if (storageAvailable('localStorage')) {
+      const newBook = {
+        title: this.titleInp.value,
+        author: this.authorInp.value,
+      };
+
+      this.addData(newBook);
+    } else {
+      console.log('ERROR: Localstorage not aviable.');
+    }
+  }
+
+  removeData(titleRemove) {
+    this.bookList = this.bookList.filter((book) => book.title !== titleRemove);
+    localStorage.setItem('bookShelfData', JSON.stringify(this.bookList));
+    this.removeButtonArr = document.querySelectorAll('.book__remove-button');
+  }
+
+  removeBook() {
+    this.removeButtonArr = document.querySelectorAll('.book__remove-button');
+
+    this.removeButtonArr.forEach((button) => {
+      button.addEventListener('click', () => {
+        this.removeData(
+          button.parentNode.parentNode.querySelector('#book__title').innerHTML,
+        );
+        button.parentElement.parentNode.remove();
+        this.emptyMessage();
+      });
+    });
+  }
+
+  loader() {
+    this.emptyMessage();
+    for (let i = 0; i < this.bookList.length; i += 1) {
+      this.printHTML(this.bookList[i].title, this.bookList[i].author);
+    }
   }
 }
 
-//  4.2 Add listener to call saveData() and printHTML() in 'Add' button
-addButton.addEventListener('submit', (event) => {
-  event.preventDefault();
-  saveData();
-  printHTML(titleInp.value, authorInp.value);
-  removeButtonLoader();
-  addButton.reset();
-});
-
-// 5.0 RELOAD
-//   5.1 Reload data function
-function reloadData() {
-  const tempArr = JSON.parse(localStorage.bookShelfData);
-
-  for (let i = 0; i < tempArr.length; i + 1) {
-    printHTML(tempArr[i].title, tempArr[i].author);
-  }
-
-  removeButtonArr = document.querySelectorAll('.book__remove-button');
-}
-
-//   5.2 Reload data if is NOT undefined
-if (localStorage.bookShelfData !== undefined) {
-  bookList = JSON.parse(localStorage.bookShelfData);
-  removeButtonArr = document.querySelectorAll('.book__remove-button');
-  reloadData();
-  removeButtonLoader();
-}
+const bookshelf = new Bookshelf();
+bookshelf.loader();

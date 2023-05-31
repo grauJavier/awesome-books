@@ -29,12 +29,15 @@ function printHTML(title, author) {
   bookShelf.insertAdjacentHTML(
     "beforeend",
     `
-     <div id="books-listed__book">
-        <p id="book__title">${title}</p>
-        <p id="book__author">${author}</p>
-        <button type="button" class="book__remove-button">Remove</button>
-        <hr />
-      </div>
+     <tr id="books-listed__book">
+       <td id="book__title">"${title}"</td>
+       <td id="book__author">by ${author}</td>
+       <td class="text-end">
+         <button type="button" class="book__remove-button btn btn-outline-primary rounded-pill">
+           Remove
+         </button>
+       </td>
+     </tr>
     `
   );
 

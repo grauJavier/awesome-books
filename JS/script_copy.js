@@ -27,17 +27,12 @@ function storageAvailable(type) {
 
 class Bookshelf {
   constructor() {
-    this.bookList = [];
-    this.removeButtonArr = [];
+    this.bookList = JSON.parse(localStorage.getItem('bookShelfData')) || [];
+    this.removeButtonArr = document.querySelectorAll('.book__remove-button') || [];
     this.bookShelf = document.querySelector('#books-listed__body');
     this.addButton = document.querySelector('#add-book__form');
     this.titleInp = document.querySelector('#add-book__title');
     this.authorInp = document.querySelector('#add-book__author');
-
-    if (localStorage.bookShelfData !== undefined) {
-      this.bookList = JSON.parse(localStorage.getItem('bookShelfData'));
-      this.removeButtonArr = document.querySelectorAll('.book__remove-button');
-    }
 
     this.addButton.addEventListener('submit', (event) => {
       event.preventDefault();
@@ -51,7 +46,7 @@ class Bookshelf {
       'beforeend',
       `
        <tr id="books-listed__book">
-         <td id="book__title">"${title}"</td>
+         <td id="book__title">${title}</td>
          <td id="book__author">by ${author}</td>
          <td class="text-end">
            <button type="button" class="book__remove-button btn btn-outline-primary rounded-pill">
@@ -81,6 +76,7 @@ class Bookshelf {
 
   removeData(titleRemove) {
     this.bookList = this.bookList.filter((book) => book.title !== titleRemove);
+    console.log(this.bookList)
     localStorage.setItem('bookShelfData', JSON.stringify(this.bookList));
     this.removeButtonArr = document.querySelectorAll('.book__remove-button');
   }
@@ -97,6 +93,13 @@ class Bookshelf {
       });
     });
   }
+
+  loader () {
+    for(let i = 0; i < this.bookList.length; i += 1) {
+      this.printHTML(this.bookList[i].title, this.bookList[i].author);
+    }
+  }
 }
 
 const bookshelf = new Bookshelf();
+bookshelf.loader();

@@ -54,7 +54,7 @@ class Bookshelf {
     }
   }
 
-  printHTML(title, author) {
+  printHTML(title, author, bookID) {
     this.bookShelf.insertAdjacentHTML(
       'beforeend',
       `
@@ -62,7 +62,7 @@ class Bookshelf {
          <td id="book__title">${title}</td>
          <td id="book__author">by ${author}</td>
          <td class="text-end">
-           <button type="button" class="book__remove-button btn btn-outline-primary rounded-pill">
+           <button type="button" class="book__remove-button btn btn-outline-primary rounded-pill" book-id="${bookID}">
              Remove
            </button>
          </td>
@@ -73,9 +73,9 @@ class Bookshelf {
   }
 
   addData(obj) {
-    this.bookList.push(obj);
+    this.bookList = this.bookList.concat(obj);
     localStorage.setItem('bookShelfData', JSON.stringify(this.bookList));
-    this.printHTML(obj.title, obj.author);
+    this.printHTML(obj.title, obj.author, obj.id);
   }
 
   addBook() {
@@ -83,6 +83,7 @@ class Bookshelf {
       const newBook = {
         title: this.titleInp.value,
         author: this.authorInp.value,
+        id: (`book${this.bookList.length}`),
       };
 
       this.addData(newBook);
@@ -91,8 +92,8 @@ class Bookshelf {
     }
   }
 
-  removeData(titleRemove) {
-    this.bookList = this.bookList.filter((book) => book.title !== titleRemove);
+  removeData(bookID) {
+    this.bookList = this.bookList.filter((book) => book.id !== bookID);
     localStorage.setItem('bookShelfData', JSON.stringify(this.bookList));
     this.removeButtonArr = document.querySelectorAll('.book__remove-button');
   }
@@ -103,7 +104,7 @@ class Bookshelf {
     this.removeButtonArr.forEach((button) => {
       button.addEventListener('click', () => {
         this.removeData(
-          button.parentNode.parentNode.querySelector('#book__title').innerHTML,
+          button.getAttribute('book-id'),
         );
         button.parentElement.parentNode.remove();
         this.emptyMessage();

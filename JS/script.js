@@ -42,6 +42,7 @@ class Bookshelf {
       this.emptyMessage();
     });
   }
+  // message for empty list
 
   emptyMessage() {
     if (
@@ -53,6 +54,7 @@ class Bookshelf {
       this.textEmpty.classList.replace('d-block', 'd-none');
     }
   }
+  // html dinamic constructor
 
   printHTML(title, author, bookID) {
     this.bookShelf.insertAdjacentHTML(
@@ -72,6 +74,7 @@ class Bookshelf {
     this.removeBook();
     this.roundCorners();
   }
+  // desing visual form
 
   roundCorners() {
     this.titleCellArr = document.querySelectorAll('#book__title') || [];
@@ -97,6 +100,7 @@ class Bookshelf {
       }
     }
   }
+  // insert data to localstorage
 
   addData(obj) {
     this.bookList = this.bookList.concat(obj);
@@ -104,6 +108,7 @@ class Bookshelf {
     this.printHTML(obj.title, obj.author, obj.id);
     this.roundCorners();
   }
+  // obtain values of form books 
 
   addBook() {
     if (storageAvailable('localStorage')) {
@@ -118,12 +123,14 @@ class Bookshelf {
       console.log('ERROR: Localstorage not aviable.');
     }
   }
+  // remove data from local storage 
 
   removeData(bookID) {
     this.bookList = this.bookList.filter((book) => book.id !== bookID);
     localStorage.setItem('bookShelfData', JSON.stringify(this.bookList));
     this.removeButtonArr = document.querySelectorAll('.book__remove-button');
   }
+  // remove html book space 
 
   removeBook() {
     this.removeButtonArr = document.querySelectorAll('.book__remove-button');
@@ -137,7 +144,8 @@ class Bookshelf {
       });
     });
   }
-
+  // reader of local storage book info
+  
   loader() {
     this.emptyMessage();
     for (let i = 0; i < this.bookList.length; i += 1) {

@@ -17,7 +17,7 @@ function getDaySuffix(day) {
       return 'th';
   }
 }
-
+ // Obtain and format date and time
 function updateDate() {
   const currentDate = new Date();
 

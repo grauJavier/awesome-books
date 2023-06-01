@@ -7,7 +7,7 @@ const listPage = document.querySelector('#books');
 const addNewPage = document.querySelector('#add-book');
 const contactPage = document.querySelector('#contact');
 const pageArr = [listPage, addNewPage, contactPage];
-
+// switch pages items 
 function displaySwitch(indexButton) {
   pageArr.forEach((page, indexPage) => {
     if (indexPage === indexButton) {

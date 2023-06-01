@@ -61,7 +61,7 @@ class Bookshelf {
        <tr id="books-listed__book">
          <td id="book__title">${title}</td>
          <td id="book__author">by ${author}</td>
-         <td class="text-end">
+         <td id="book__remove-button" class="text-end">
            <button type="button" class="book__remove-button btn btn-outline-primary rounded-pill" book-id="${bookID}">
              Remove
            </button>
@@ -70,12 +70,39 @@ class Bookshelf {
       `,
     );
     this.removeBook();
+    this.roundCorners();
+  }
+
+  roundCorners() {
+    this.titleCellArr = document.querySelectorAll('#book__title') || [];
+    this.buttonCellArr = document.querySelectorAll('#book__remove-button') || [];
+
+    [this.topLeft] = this.titleCellArr;
+    [this.topRight] = this.buttonCellArr;
+    this.bottomLeft = this.titleCellArr[this.titleCellArr.length - 1];
+    this.bottomRight = this.buttonCellArr[this.buttonCellArr.length - 1];
+
+    if (this.titleCellArr.length === 1 && this.titleCellArr.length !== 0) {
+      this.titleCellArr[0].style = 'border-top-left-radius: var(--bs-border-radius-xxl)!important; border-bottom-left-radius: var(--bs-border-radius-xxl)!important;';
+      this.buttonCellArr[0].style = 'border-top-right-radius: var(--bs-border-radius-xxl)!important; border-bottom-right-radius: var(--bs-border-radius-xxl)!important;';
+    } else if (this.titleCellArr.length !== 0) {
+      this.topLeft.style = 'border-top-left-radius: var(--bs-border-radius-xxl)!important;';
+      this.topRight.style = 'border-top-right-radius: var(--bs-border-radius-xxl)!important;';
+      this.bottomLeft.style = 'border-bottom-left-radius: var(--bs-border-radius-xxl)!important;';
+      this.bottomRight.style = 'border-bottom-right-radius: var(--bs-border-radius-xxl)!important;';
+
+      for (let i = 1; i < this.titleCellArr.length - 1; i += 1) {
+        this.titleCellArr[i].style = 'border-radius: 0;';
+        this.buttonCellArr[i].style = 'border-radius: 0;';
+      }
+    }
   }
 
   addData(obj) {
     this.bookList = this.bookList.concat(obj);
     localStorage.setItem('bookShelfData', JSON.stringify(this.bookList));
     this.printHTML(obj.title, obj.author, obj.id);
+    this.roundCorners();
   }
 
   addBook() {
@@ -83,7 +110,7 @@ class Bookshelf {
       const newBook = {
         title: this.titleInp.value,
         author: this.authorInp.value,
-        id: (`book${this.bookList.length}`),
+        id: `book${this.bookList.length}`,
       };
 
       this.addData(newBook);
@@ -103,11 +130,10 @@ class Bookshelf {
 
     this.removeButtonArr.forEach((button) => {
       button.addEventListener('click', () => {
-        this.removeData(
-          button.getAttribute('book-id'),
-        );
+        this.removeData(button.getAttribute('book-id'));
         button.parentElement.parentNode.remove();
         this.emptyMessage();
+        this.roundCorners();
       });
     });
   }
@@ -115,7 +141,7 @@ class Bookshelf {
   loader() {
     this.emptyMessage();
     for (let i = 0; i < this.bookList.length; i += 1) {
-      this.printHTML(this.bookList[i].title, this.bookList[i].author);
+      this.printHTML(this.bookList[i].title, this.bookList[i].author, this.bookList[i].id);
     }
   }
 }

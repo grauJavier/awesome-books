@@ -2,3 +2,11 @@
 #add-book__form {
   width: 30rem;
 }
+
+#navbar__logo {
+  text-shadow: 3px 3px #bdbdbd69;
+}
+
+.nav-link:hover {
+  color:#0d6efd;
+}
